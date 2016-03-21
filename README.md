@@ -1,4 +1,4 @@
-Example implementation android using Recycler View and Load data in background using asynctask
+Example implementation android using Recycler View and data store in SQLite then Loaded in background using asynctask
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
