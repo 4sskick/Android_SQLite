@@ -14,12 +14,18 @@ import androdev.sqlitetut.view.ViewAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
+    DBHandler dbHandler;
+    ViewAdapter viewAdapter;
+    RecyclerView recyclerView;
+    List<Model> modelList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DBHandler dbHandler = new DBHandler(this);
+        Log.d("MAIN", "onCreate: ...");
+        dbHandler = new DBHandler(this);
 
         /**
          * execute preparing data in background
@@ -27,31 +33,31 @@ public class MainActivity extends AppCompatActivity {
          * and populating data from DB done
          * set data on recycler
          */
-        new Preparing(dbHandler).execute();
-        List<Model> modellist = dbHandler.getAllDataModel();
+        new Preparing().execute();
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-
-        ViewAdapter viewAdapter = new ViewAdapter(this, modellist);
-        recyclerView.setAdapter(viewAdapter);
+        Log.d("MAIN", "onCreate: ...#2");
     }
 
+    /**
+     * asynctask called after all process on
+     * onCreate method done executed
+     */
     class Preparing extends AsyncTask{
 
-        DBHandler dbHandler;
         ProgressDialog progressDialog;
 
-        public Preparing(DBHandler dbHandler) {
-            this.dbHandler = dbHandler;
-        }
-
+        /**
+         * starting from onPreExecute
+         * then onCreated continued executing
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            Log.d("MAIN", "onPreExecute: Preparing..");
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("Preparing..");
             progressDialog.setCancelable(false);
@@ -59,9 +65,15 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.show();
         }
 
+        /**
+         * after onCreate finished execute,
+         * starting to execute doInBackground
+         * @param params
+         * @return
+         */
         @Override
         protected Object doInBackground(Object[] params) {
-            Log.d("MAIN", "onCreate: inserting...");
+            Log.d("MAIN", "doInBackground: inserting...");
             dbHandler.addModel(new Model("Septian", "Perumahan Tamansari Indah C-12"));
             dbHandler.addModel(new Model("Adi", "Bondosowo"));
             dbHandler.addModel(new Model("Wijaya", "Jl. Kertorahardjo dalam no.42"));
@@ -72,19 +84,29 @@ public class MainActivity extends AppCompatActivity {
             dbHandler.addModel(new Model("Town Bakers", "Beverly Hills, CA 90210, USA"));
 
             //reading all data in model
-            Log.d("MAIN", "onCreate: Reading...");
-            List<Model> modelList = dbHandler.getAllDataModel();
+            Log.d("MAIN", "doInBackground: Reading...");
+            modelList = dbHandler.getAllDataModel();
 
             for (Model model : modelList) {
                 String log = "id: " + model.getId() + ", name: " + model.getName() + ", address: " + model.getAddress();
-                Log.d("MAIN", "onCreate: " + log);
+                Log.d("MAIN", "doInBackground: " + log);
             }
             return null;
         }
 
+        /**
+         * last executed onPostExecute,
+         * so this gonna be perfect place to gather all data
+         * to presented on UI
+         * @param o
+         */
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
+            Log.d("MAIN", "onPostExecute: dismissed progressDialog");
+
+            viewAdapter = new ViewAdapter(MainActivity.this, modelList);
+            recyclerView.setAdapter(viewAdapter);
             progressDialog.dismiss();
         }
     }

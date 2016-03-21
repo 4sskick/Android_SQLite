@@ -77,8 +77,26 @@ public class DBHandler extends SQLiteOpenHelper {
         contentValues.put(COL_NAME, model.getName());
         contentValues.put(COL_ADDRESS, model.getAddress());
 
-        db.insert(DB_TABLE, null, contentValues);
+        if (!checkDuplicateDataModel(contentValues)) {
+            db.insert(DB_TABLE, null, contentValues);
+        }
         db.close();//don't forget to close connection port of DB
+    }
+
+    private boolean checkDuplicateDataModel(ContentValues contentValues) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(DB_TABLE, null, COL_NAME + " = ? AND " + COL_ADDRESS + " = ?",
+                new String[]{
+                        String.valueOf(contentValues.get(COL_NAME)),
+                        String.valueOf(contentValues.get(COL_ADDRESS))
+                },
+                null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            //duplicate found
+            return true;
+        }
+        return false;
     }
 
     //get data from model by id
@@ -87,7 +105,10 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(DB_TABLE, new String[]{COL_ID, COL_NAME, COL_ADDRESS}, COL_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
+                new String[]{
+                        String.valueOf(id)
+                },
+                null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -106,7 +127,7 @@ public class DBHandler extends SQLiteOpenHelper {
         //select all queries
         String selectQuery = "SELECT * FROM " + DB_TABLE;
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         //looping through all rows and adding to list
