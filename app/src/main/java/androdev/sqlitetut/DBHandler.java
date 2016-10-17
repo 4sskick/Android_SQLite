@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import androdev.sqlitetut.model.Model;
+
 /**
  * Created by Administrator on 21-Mar-16.
  */
@@ -28,6 +30,8 @@ public class DBHandler extends SQLiteOpenHelper {
     private static String COL_ID = "id";
     private static String COL_NAME = "name";
     private static String COL_ADDRESS = "address";
+    private static String COL_DATE_BIRTH = "date_birth";
+    private static String COL_GENDER = "gender";
 
     /**
      * constructor
@@ -52,7 +56,9 @@ public class DBHandler extends SQLiteOpenHelper {
         String CREATE_TABLE = "CREATE TABLE " + DB_TABLE + "(" +
                 COL_ID + " INTEGER PRIMARY KEY," +
                 COL_NAME + " TEXT," +
-                COL_ADDRESS + " TEXT )";
+                COL_ADDRESS + " TEXT," +
+                COL_DATE_BIRTH + " TEXT," +
+                COL_GENDER + " TEXT )";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -68,7 +74,7 @@ public class DBHandler extends SQLiteOpenHelper {
     /**
      * methods for control data that wanna store
      */
-    public void addModel(Model model) {
+    public void addDataModel(Model model) {
         //write date into db
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -76,6 +82,8 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_NAME, model.getName());
         contentValues.put(COL_ADDRESS, model.getAddress());
+        contentValues.put(COL_DATE_BIRTH, model.getDate_birth());
+        contentValues.put(COL_GENDER, model.getGender());
 
         if (!checkDuplicateDataModel(contentValues)) {
             db.insert(DB_TABLE, null, contentValues);
@@ -94,35 +102,17 @@ public class DBHandler extends SQLiteOpenHelper {
 
         if (cursor != null && cursor.getCount() > 0) {
             //duplicate found
+            cursor.close();//closed when cursor not null
+
             return true;
+        } else {
+            return false;
         }
-        return false;
-    }
-
-    //get data from model by id
-    public Model getDatamodel(int id) {
-        //read data from db
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(DB_TABLE, new String[]{COL_ID, COL_NAME, COL_ADDRESS}, COL_ID + "=?",
-                new String[]{
-                        String.valueOf(id)
-                },
-                null, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-        }
-
-        Model model = new Model(Integer.parseInt(cursor.getString(0)),
-                String.valueOf(cursor.getString(1)),
-                String.valueOf(cursor.getString(2)));
-
-        return model;
     }
 
     //get all data from model
-    public List<Model> getAllDataModel() {
-        List<Model> modelList = new ArrayList<Model>();
+    public List<Model> getSumarryDataModel() {
+        List<Model> modelList = new ArrayList<>();
 
         //select all queries
         String selectQuery = "SELECT * FROM " + DB_TABLE;
@@ -137,37 +127,71 @@ public class DBHandler extends SQLiteOpenHelper {
                 model.setId(Integer.parseInt(cursor.getString(0)));
                 model.setName(String.valueOf(cursor.getString(1)));
                 model.setAddress(String.valueOf(cursor.getString(2)));
+                model.setDate_birth(String.valueOf(cursor.getString(3)));
+                model.setGender(String.valueOf(cursor.getString(4)));
 
                 //adding data into list
                 modelList.add(model);
             } while (cursor.moveToNext());
         }
+        cursor.close();
+
+        return modelList;
+    }
+
+    public List<Model> getSummaryDataModelWhere(String stringData) {
+        List<Model> modelList = new ArrayList<>();
+
+        //select query
+        String selectWhereQuery = "SELECT * FROM " + DB_TABLE + " WHERE " + COL_NAME + " = '" + stringData + "'";
+
+        //configure database
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectWhereQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Model model = new Model();
+                model.setId(Integer.parseInt(cursor.getString(0)));
+                model.setName(String.valueOf(cursor.getString(1)));
+                model.setAddress(String.valueOf(cursor.getString(2)));
+                model.setDate_birth(String.valueOf(cursor.getString(3)));
+                model.setGender(String.valueOf(cursor.getString(4)));
+
+                modelList.add(model);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
 
         return modelList;
     }
 
     //update data in model by ID
-    public int updateDataModel(Model model) {
+    public void updateDataModel(Model model) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_NAME, model.getName());
         contentValues.put(COL_ADDRESS, model.getAddress());
+        contentValues.put(COL_DATE_BIRTH, model.getDate_birth());
+        contentValues.put(COL_GENDER, model.getGender());
 
         //updating rows
-        return db.update(DB_TABLE, contentValues, COL_ID + "=?",
+        db.update(DB_TABLE, contentValues, COL_ID + " = ?",
                 new String[]{
                         String.valueOf(model.getId())
-                });
+                }
+        );
+        db.close();
     }
 
     //delete data in model by ID
     public void deleteDataModel(Model model) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        db.delete(DB_TABLE, COL_ID + "=?",
+        db.delete(DB_TABLE, COL_NAME + " = ?",
                 new String[]{
-                        String.valueOf(model.getId())
+                        String.valueOf(model.getName())
                 });
         db.close();
     }

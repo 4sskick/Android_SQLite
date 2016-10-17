@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">SqliteTut</string>
+    <string name="txt_new_data">Add New Data</string>
+    <string name="txt_hint_date">12/12/1990</string>
+    <string name="txt_hint_gender">Male or Female</string>
+    <string name="txt_add_id_no">ID Number</string>
+    <string name="txt_add_name">Name</string>
+    <string name="txt_add_address">Address</string>
+    <string name="txt_add_date_birth">Date Birth</string>
+    <string name="txt_add_gender">Gender</string>
+    <string name="txt_add_save">Save</string>
+    <string name="txt_detail_update">Update</string>
+    <string name="txt_detail_delete">Delete</string>
+    <string name="txt_detail_cancel">Cancel</string>
+    <string name="txt_add_back">Back</string>
+    <string name="txt_success">Success Adding Data</string>
+    <string name="txt_success_update">Success Updating Data</string>
+    <string name="txt_failed_update">Failed Updating Data</string>
+    <string name="txt_success_delete">Success Delete Data</string>
+    <string name="txt_warn_neg">Data Must be Filled</string>
+    <string name="txt_failed_confirmation_name">Name must be filled</string>
+    <string name="txt_failed_confirmation_gender">Gender Must be filled with M/F</string>
+    <string name="txt_failed_confirmation_dateBirth">Birth Must be dd/mm/yyyy</string>
+    <string name="txt_modal_confirmation">Confirmation Action</string>
+    <string name="txt_modal_confirmation_yes">Yes</string>
+    <string name="txt_modal_confirmation_no">No</string>
+    <string name="txt_modal_content">Are you really want to delete this data?</string>
 </resources>

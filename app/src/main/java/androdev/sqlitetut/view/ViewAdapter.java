@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import androdev.sqlitetut.Model;
+import androdev.sqlitetut.model.Model;
 import androdev.sqlitetut.R;
 
 /**
